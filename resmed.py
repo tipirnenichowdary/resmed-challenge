@@ -15,31 +15,34 @@ args = parser.parse_args()
 if (args.location):
     locale.setlocale(category=locale.LC_ALL, locale=args.location)
 
-#API call
-API_ENDPOINT = "https://ancient-wood-1161.getsandbox.com/results"
-headers = {'content-type': 'application/json'}
-response = requests.post(url = API_ENDPOINT, headers=headers)
+def get_sport_details(sport):
+    """Get sport details using ancient-wood API (synchronously)"""
 
-if response.status_code != 200:
-    # This means something went wrong.
-    raise Exception('Your request did not receive a valid response, Please retry in sometime...')
+    API_ENDPOINT = "https://ancient-wood-1161.getsandbox.com/results"
+    headers = {'content-type': 'application/json'}
+    response = requests.post(url = API_ENDPOINT, headers=headers)
 
-#Filtering the result by selected sport
-result = response.json()[args.sport]
+    if response.status_code != 200:
+        # This means something went wrong.
+        raise Exception('Your request did not receive a valid response, Please retry in sometime...')
 
-try:
-    # Sort the list in reverse chronological order of dates
-    sorted_data = sorted(result, key=lambda x: datetime.strptime(x['publicationDate'], '%b %d, %Y %H:%M:%S %p'), reverse=True)
+    #Filtering the result by selected sport
+    result = response.json()[args.sport]
+
+    try:
+        # Sort the list in reverse chronological order of dates
+        sorted_data = sorted(result, key=lambda x: datetime.strptime(x['publicationDate'], '%b %d, %Y %H:%M:%S %p'), reverse=True)
     
-    # Print the data in table format
-    if(sorted_data):
-        formatted_data = pd.DataFrame.from_dict(sorted_data)
-        print(formatted_data)
+        # Print the data in table format
+        if(sorted_data):
+            formatted_data = pd.DataFrame.from_dict(sorted_data)
+            print(formatted_data)
 
-except ValueError:
-    print("The provided information could not be processed. Please try again")
-except NameError:
-    print("Provided data object is undefined!")
-else:
-    print("Data retrieved successfully")
+    except ValueError:
+        print("The provided information could not be processed. Please try again")
+    except NameError:
+        print("Provided data object is undefined!")
+    else:
+        print("Data retrieved successfully")
 
+get_sport_details(args.sport)
